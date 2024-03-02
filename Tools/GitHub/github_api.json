@@ -1,0 +1,421 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "version": "1.1.4",
+        "title": "GitHub v3 REST API",
+        "description": "GitHub's v3 REST API.",
+        "license": {
+            "name": "MIT",
+            "url": "https://spdx.org/licenses/MIT"
+        },
+        "termsOfService": "https://docs.github.com/articles/github-terms-of-service",
+        "contact": {
+            "name": "Support",
+            "url": "https://support.github.com/contact?tags=dotcom-rest-api"
+        },
+        "x-github-plan": "api.github.com"
+    },
+    "servers": [
+        {
+            "url": "https://api.github.com",
+            "description": "GitHub's v3 REST API"
+        }
+    ],
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "GitHub API Root",
+                "description": "Get Hypermedia links to resources accessible in GitHub's REST API",
+                "tags": [
+                    "meta"
+                ],
+                "operationId": "meta/root",
+                "responses": {
+                    "200": {
+                        "description": "Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/root"
+                                },
+                                "examples": {
+                                    "default": {
+                                        "$ref": "#/components/examples/root"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-github": {
+                    "githubCloudOnly": false,
+                    "enabledForGitHubApps": true,
+                    "category": "meta"
+                },
+                "externalDocs": {
+                    "description": "API method documentation",
+                    "url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#root-endpoint"
+                }
+            }
+        },
+        "/user/repos": {
+            "get": {
+                "summary": "List repositories for the authenticated user",
+                "description": "Lists repositories that the authenticated user has explicit permission (`:read`, `:write`, or `:admin`) to access.\n\nThe authenticated user has explicit permission to access repositories they own, repositories where they are a collaborator, and repositories that they can access through an organization membership.",
+                "tags": [
+                    "repos"
+                ],
+                "operationId": "repos/list-for-authenticated-user",
+                "externalDocs": {
+                    "description": "API method documentation",
+                    "url": "https://docs.github.com/rest/reference/repos#list-repositories-for-the-authenticated-user"
+                },
+                "parameters": [
+                    {
+                        "name": "visibility",
+                        "description": "Limit results to repositories with the specified visibility.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "public",
+                                "private"
+                            ],
+                            "default": "all"
+                        }
+                    },
+                    {
+                        "name": "affiliation",
+                        "description": "Comma-separated list of values. Can include:  \n\\* `owner`: Repositories that are owned by the authenticated user.  \n\\* `collaborator`: Repositories that the user has been added to as a collaborator.  \n\\* `organization_member`: Repositories that the user has access to through being a member of an organization. This includes every repository on every team that the user is on.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "owner,collaborator,organization_member"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "description": "Limit results to repositories of the specified type. Will cause a `422` error if used in the same request as **visibility** or **affiliation**.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "owner",
+                                "public",
+                                "private",
+                                "member"
+                            ],
+                            "default": "all"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "description": "The property to sort the results by.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "created",
+                                "updated",
+                                "pushed",
+                                "full_name"
+                            ],
+                            "default": "full_name"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "description": "The order to sort by. Default: `asc` when using `full_name`, otherwise `desc`.",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/per-page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/since"
+                    },
+                    {
+                        "$ref": "#/components/parameters/before"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/repository"
+                                    }
+                                },
+                                "examples": {
+                                    "default": {
+                                        "$ref": "#/components/examples/repository-items-default-response"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/validation_failed"
+                    },
+                    "304": {
+                        "$ref": "#/components/responses/not_modified"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/forbidden"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/requires_authentication"
+                    }
+                },
+                "x-github": {
+                    "githubCloudOnly": false,
+                    "enabledForGitHubApps": false,
+                    "category": "repos",
+                    "subcategory": null
+                }
+            },
+            "post": {
+                "summary": "Create a repository for the authenticated user",
+                "description": "Creates a new repository for the authenticated user.\n\n**OAuth scope requirements**\n\nWhen using [OAuth](https://docs.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/), authorizations must include:\n\n*   `public_repo` scope or `repo` scope to create a public repository. Note: For GitHub AE, use `repo` scope to create an internal repository.\n*   `repo` scope to create a private repository.",
+                "tags": [
+                    "repos"
+                ],
+                "operationId": "repos/create-for-authenticated-user",
+                "externalDocs": {
+                    "description": "API method documentation",
+                    "url": "https://docs.github.com/rest/reference/repos#create-a-repository-for-the-authenticated-user"
+                },
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "The name of the repository.",
+                                        "type": "string",
+                                        "example": "Team Environment"
+                                    },
+                                    "description": {
+                                        "description": "A short description of the repository.",
+                                        "type": "string"
+                                    },
+                                    "homepage": {
+                                        "description": "A URL with more information about the repository.",
+                                        "type": "string"
+                                    },
+                                    "private": {
+                                        "description": "Whether the repository is private.",
+                                        "default": false,
+                                        "type": "boolean"
+                                    },
+                                    "has_issues": {
+                                        "description": "Whether issues are enabled.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "has_projects": {
+                                        "description": "Whether projects are enabled.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "has_wiki": {
+                                        "description": "Whether the wiki is enabled.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "team_id": {
+                                        "description": "The id of the team that will be granted access to this repository. This is only valid when creating a repository in an organization.",
+                                        "type": "integer"
+                                    },
+                                    "auto_init": {
+                                        "description": "Whether the repository is initialized with a minimal README.",
+                                        "default": false,
+                                        "type": "boolean"
+                                    },
+                                    "gitignore_template": {
+                                        "description": "The desired language or platform to apply to the .gitignore.",
+                                        "example": "Haskell",
+                                        "type": "string"
+                                    },
+                                    "license_template": {
+                                        "description": "The license keyword of the open source license for this repository.",
+                                        "example": "mit",
+                                        "type": "string"
+                                    },
+                                    "allow_squash_merge": {
+                                        "description": "Whether to allow squash merges for pull requests.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "allow_merge_commit": {
+                                        "description": "Whether to allow merge commits for pull requests.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "allow_rebase_merge": {
+                                        "description": "Whether to allow rebase merges for pull requests.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "allow_auto_merge": {
+                                        "description": "Whether to allow Auto-merge to be used on pull requests.",
+                                        "default": false,
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "delete_branch_on_merge": {
+                                        "description": "Whether to delete head branches when pull requests are merged",
+                                        "default": false,
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "squash_merge_commit_title": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PR_TITLE",
+                                            "COMMIT_OR_PR_TITLE"
+                                        ],
+                                        "description": "The default value for a squash merge commit title:\n\n- `PR_TITLE` - default to the pull request's title.\n- `COMMIT_OR_PR_TITLE` - default to the commit's title (if only one commit) or the pull request's title (when more than one commit)."
+                                    },
+                                    "squash_merge_commit_message": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PR_BODY",
+                                            "COMMIT_MESSAGES",
+                                            "BLANK"
+                                        ],
+                                        "description": "The default value for a squash merge commit message:\n\n- `PR_BODY` - default to the pull request's body.\n- `COMMIT_MESSAGES` - default to the branch's commit messages.\n- `BLANK` - default to a blank commit message."
+                                    },
+                                    "merge_commit_title": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PR_TITLE",
+                                            "MERGE_MESSAGE"
+                                        ],
+                                        "description": "The default value for a merge commit title.\n\n- `PR_TITLE` - default to the pull request's title.\n- `MERGE_MESSAGE` - default to the classic title for a merge message (e.g., Merge pull request #123 from branch-name)."
+                                    },
+                                    "merge_commit_message": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PR_BODY",
+                                            "PR_TITLE",
+                                            "BLANK"
+                                        ],
+                                        "description": "The default value for a merge commit message.\n\n- `PR_TITLE` - default to the pull request's title.\n- `PR_BODY` - default to the pull request's body.\n- `BLANK` - default to a blank commit message."
+                                    },
+                                    "has_downloads": {
+                                        "description": "Whether downloads are enabled.",
+                                        "default": true,
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "is_template": {
+                                        "description": "Whether this repository acts as a template that can be used to generate new repositories.",
+                                        "default": false,
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ],
+                                "type": "object"
+                            },
+                            "examples": {
+                                "default": {
+                                    "value": {
+                                        "name": "Hello-World",
+                                        "description": "This is your first repo!",
+                                        "homepage": "https://github.com",
+                                        "private": false,
+                                        "is_template": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/repository"
+                                },
+                                "examples": {
+                                    "default": {
+                                        "$ref": "#/components/examples/repository"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "example": "https://api.github.com/repos/octocat/Hello-World",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/requires_authentication"
+                    },
+                    "304": {
+                        "$ref": "#/components/responses/not_modified"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/not_found"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/forbidden"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/validation_failed"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/bad_request"
+                    }
+                },
+                "x-github": {
+                    "githubCloudOnly": false,
+                    "enabledForGitHubApps": false,
+                    "category": "repos",
+                    "subcategory": null
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {}
+    }
+}
